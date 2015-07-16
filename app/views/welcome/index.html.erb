@@ -1,0 +1,32 @@
+puts '<script type="text/javascript">'
+puts 'var __uzdbm_a = "' + shieldsquare_response["pid"] +'"'
+puts 'var __uzdbm_b = "' + shieldsquare_response["url"] +'"'
+puts 'shieldsquare_response["dynamic_JS"]''
+puts '</script>'
+
+<%
+
+require 'ss2'
+shieldsquare_userid = "jay.d@shieldsquare.com" # Enter the UserID of the user
+shieldsquare_calltype = 1
+shieldsquare_pid = ""
+shieldsquare_response=shieldsquare_ValidateRequest shieldsquare_userid,shieldsquare_calltype, shieldsquare_pid
+
+if shieldsquare_response["responsecode"] == -1
+	puts "Curl Error - " + shieldsquare_response["reason"] + "<BR>"
+	puts "Please reach out to ShieldSquare support team for assistance <BR>"
+	puts "Allow the user request"
+end
+
+%>
+
+
+<script type="text/javascript" src="https://cdn.perfdrive.com/static/browser_detect_min.js">
+</script>
+
+<h1>Welcome#index</h1>
+<p>Find me in app/views/welcome/index.html.erb</p>
+
+--> We'll put the ss2.rb file in /lib folder as ::
+The Ruby looks for default requires in :
+<%= $LOAD_PATH %>
