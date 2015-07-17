@@ -5,7 +5,7 @@ require 'open-uri'
 require 'cgi'
 require 'rubygems'
 require 'json'
-require 'curb'
+#require 'curb'
 require 'date'
 
 #Request Variables
@@ -44,7 +44,7 @@ $ShieldsquareCodes_FFD   = 4
 $ShieldsquareCodes_ALLOW_EXP = -1
 
 
-def shieldsquare_ValidateRequest( shieldsquare_username, shieldsquare_calltype, shieldsquare_pid ) 
+def shieldsquare_ValidateRequest( shieldsquare_username, shieldsquare_calltype, shieldsquare_pid )
 	shieldsquare_low  = 10000
 	shieldsquare_high = 99999
 	shieldsquare_a = 1
@@ -54,45 +54,54 @@ def shieldsquare_ValidateRequest( shieldsquare_username, shieldsquare_calltype, 
 	shieldsquare_e = 5
 	shieldsquare_f = 10
 	shieldsquare_service_url = "http://" + $_ss2_domain + "/getRequestData"
-	
+
 	if $_timeout_value > 1000
 		puts "Content-type: text/html"
 		puts ''
 		puts 'ShieldSquare Timeout cant be greater then 1000 Milli seconds'
 		exit
-	end	
-	
-	
-	if shieldsquare_calltype == 1 
+	end
+
+
+	if shieldsquare_calltype == 1
 		shieldsquare_pid = shieldsquare_generate_pid $_sid
+		#it should generate pid anyways
 	else
-	
+
 		if  shieldsquare_pid.length == 0
 			puts "Content-type: text/html"
 			puts ''
 			puts 'PID Cant be null'
-			exit		
+			exit
 		end
 	end
-	
-	cgi = CGI.new("html4")
-	if cgi.cookies['__uzma']!="" and (cgi.cookies['__uzma'].to_s).length > 3
-		shieldsquare_lastaccesstime =  cgi.cookies['__uzmd']
+
+	#cgi = CGI.new("html4")
+	if cookies[:'__uzma']!="" and (cookies[:'__uzma'].to_s).length > 3
+		shieldsquare_lastaccesstime =  cookies[:'__uzmd']
 		shieldsquare_uzmc=0
-		shieldsquare_uzmc= cgi.cookies['__uzmc']
+		shieldsquare_uzmc= cookies[:'__uzmc']
 		shieldsquare_uzmc=shieldsquare_uzmc[shieldsquare_e..(shieldsquare_uzmc.to_s).length-shieldsquare_f]
 		shieldsquare_a = ((shieldsquare_uzmc).to_i-shieldsquare_c)/shieldsquare_b + shieldsquare_d
 		shieldsquare_uzmc= (shieldsquare_low + (rand() * shieldsquare_high).round).to_s + (shieldsquare_c+shieldsquare_a*shieldsquare_b).to_s + (shieldsquare_low + (rand() * shieldsquare_high).round).to_s
-		cookie5 = CGI::Cookie.new('name' => '__uzmc','value' => shieldsquare_uzmc,'expires' => Time.now + 3600*24*365*10 )
-		cookie6 = CGI::Cookie.new('name' => '__uzmd','value' => Time.now.to_i.to_s,'expires' => Time.now + 3600*24*365*10 )
+
+		#cookie5 = CGI::Cookie.new('name' => '__uzmc','value' => shieldsquare_uzmc,'expires' => Time.now + 3600*24*365*10 )
+			#cookies[:'name']='__uzmc';
+			#cookies[:'value']=shieldsquare_uzmc;
+			#cookies[:'expire']=Time.now + + 3600*24*365*10;
+			cookie5 = Hash['name' => '__uzmc','value' => shieldsquare_uzmc,'expires' => Time.now + 3600*24*365*10]
+		#cookie6 = CGI::Cookie.new('name' => '__uzmd','value' => Time.now.to_i.to_s,'expires' => Time.now + 3600*24*365*10 )
+		cookie6 = Hash['name' => '__uzmd','value' => Time.now.to_i.to_s,'expires' => Time.now + 3600*24*365*10];
+
 		cgi.out('cookie' => [cookie5,cookie6]) do
 		cgi.head + cgi.body {  }
+
 		end
 		$ShieldsquareRequest__uzma = cgi.cookies["__uzma"]
 		$ShieldsquareRequest__uzmb = cgi.cookies["__uzmb"]
 		$ShieldsquareRequest__uzmc = shieldsquare_uzmc
 		$ShieldsquareRequest__uzmd = shieldsquare_lastaccesstime
-	
+
 	else
 
 		id = DateTime.now.strftime('%Q')# Get current date to the milliseconds
@@ -155,11 +164,11 @@ def shieldsquare_ValidateRequest( shieldsquare_username, shieldsquare_calltype, 
 			else
 				$ShieldsquareResponse_responsecode = $ShieldsquareCodes_ALLOW_EXP
 				$ShieldsquareResponse_reason = shieldsquareCurlResponseCode['output']
-			end 
+			end
 		end
 
 	else
-		
+
 		if $_async_http_post == true
 			asyncresponse=shieldsquare_post_async shieldsquare_service_url, shieldsquare_json_obj,$_timeout_value.to_s
 			if asyncresponse['response'] == false
@@ -231,7 +240,7 @@ end
 
 def shieldsquare_IP2Hex()
 	hexx=""
-	cgi = CGI.new	
+	cgi = CGI.new
 	ip=ENV[$_ipaddress]
 	part=ip.split('.')
 	hexx=''
